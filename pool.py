@@ -1,0 +1,117 @@
+import time
+
+# Define the initial state of the pool water and filter system
+pool_water = {
+    'pH': 7.4,
+    'chlorine': 1.5,
+    'temperature': 25,
+    'total alkalinity': 120,
+    'calcium hardness': 200,
+    'cyanuric acid': 50
+}
+
+filter_system = {
+    'tap_position': 0,  # 0: FILTER, 1: BACKWASH, 2: RINSE, 3: WASTE, 4: RECIRCULATE, 5: CLOSED
+    'zeolite_remaining': 20,  # in kg
+    'zeolite_age': 1,  # in years
+    'backwash_count': 0,
+    'rinse_count': 0,
+    'waste_count': 0,
+    'recirculate_count': 0,
+    'closed_count': 0
+}
+
+
+# Define a function to update the state of the pool water based on the current filter system position
+def update_pool_water(filter_system, pool_water):
+    if filter_system['tap_position'] == 1:
+        # BACKWASH position
+        pool_water['chlorine'] -= 0.5
+    elif filter_system['tap_position'] == 2:
+        # RINSE position
+        pool_water['chlorine'] -= 0.1
+    elif filter_system['tap_position'] == 3:
+        # WASTE position
+        pool_water['chlorine'] -= 0.5
+    elif filter_system['tap_position'] == 4:
+        # RECIRCULATE position
+        pool_water['chlorine'] -= 0.1
+    else:
+        # FILTER or CLOSED position
+        pool_water['chlorine'] -= 0.2
+
+
+# Define a function to update the state of the filter system based on the current tap position
+def update_filter_system(filter_system):
+    if filter_system['tap_position'] == 1:
+        # BACKWASH position
+        filter_system['backwash_count'] += 1
+        filter_system['zeolite_remaining'] -= 2
+        filter_system['zeolite_age'] += 1
+    elif filter_system['tap_position'] == 2:
+        # RINSE position
+        filter_system['rinse_count'] += 1
+    elif filter_system['tap_position'] == 3:
+        # WASTE position
+        filter_system['waste_count'] += 1
+    elif filter_system['tap_position'] == 4:
+        # RECIRCULATE position
+        filter_system['recirculate_count'] += 1
+    else:
+        # CLOSED position
+        filter_system['closed_count'] += 1
+
+
+# Define a function to print the current state of the pool water and the filter system
+def print_state(pool_water, filter_system):
+    print('Pool water status:')
+    for k, v in pool_water.items():
+        print(f'{k}: {v}')
+    print('Filter system status:')
+    print(f'Tap position: {filter_system["tap_position"]}')
+    print(f'Zeolite remaining: {filter_system["zeolite_remaining"]} kg')
+    print(f'Zeolite age: {filter_system["zeolite_age"]} years')
+    print(f'Backwash count: {filter_system["backwash_count"]}')
+    print(f'Rinse count: {filter_system["rinse_count"]}')
+    print(f'Waste count: {filter_system["waste_count"]}')
+    print(f'Recirculate count: {filter_system["recirculate_count"]}')
+    print(f'Closed count: {filter_system["closed_count"]}')
+
+
+# Define a function to prompt the user to select a tap position
+def select_tap_position():
+    print('Select tap position:')
+    print('0: FILTER')
+    print('1: BACKWASH')
+    print('2: RINSE')
+    print('3: WASTE')
+    print('4: RECIRCULATE')
+    print('5: CLOSED')
+    while True:
+        try:
+            tap_position = int(input('Enter tap position (0-5): '))
+            if tap_position in range(6):
+                return tap_position
+            else:
+                print('Invalid input. Please enter a number from 0 to 5.')
+        except ValueError:
+            print('Invalid input. Please enter a number from 0 to 5.')
+
+
+# Main loop of the program
+while True:
+    # Print the current state of the pool water and the filter system
+    print_state(pool_water, filter_system)
+
+    # Prompt the user to select a tap position
+    tap_position = select_tap_position()
+
+    # Update the state of the filter system
+    filter_system['tap_position'] = tap_position
+    update_filter_system(filter_system)
+
+    # Update the state of the pool water
+    update_pool_water(filter_system, pool_water)
+
+    # Wait for 5 seconds before repeating the loop
+    time.sleep(5)
